@@ -1,0 +1,17 @@
+{
+  "type": "mysql",
+  "host": "127.0.0.1",
+  "username": "root",
+  "password": "password",
+  "database": "node_crud_user",
+  "synchronize": false,
+  "logging": false,
+  "entities": ["src/model/**/*.ts"],
+  "migrations": ["src/migration/**/*.ts"],
+  "subscribers": ["src/subscriber/**/*.ts"],
+  "cli": {
+    "entitiesDir": "src/model",
+    "migrationsDir": "src/migration",
+    "subscribersDir": "src/subscriber"
+  }
+}
