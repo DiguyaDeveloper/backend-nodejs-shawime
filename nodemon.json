@@ -1,7 +1,9 @@
 {
-  "watch": ["src"],
-  "execMap": {
-    "ts": "sucrase-node src/server.ts"
-  },
-  "ext": "ts"
+    "delay": "0",
+    "execMap": {
+        "ts": "node -r ts-node/register"
+    },
+    "events": {
+        "start": "tslint -c ./tslint.json -t stylish 'src/**/*.ts'"
+    }
 }

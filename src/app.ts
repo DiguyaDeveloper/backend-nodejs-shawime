@@ -1,33 +1,38 @@
-import { createConnection, Connection } from 'typeorm'
-import * as express from 'express'
-import * as cors from 'cors'
-import routes from './routes'
-import 'reflect-metadata'
+import 'reflect-metadata';
+import { install as installSourceMapSupport } from 'source-map-support';
+import { DATA_DIR, NODE_ENV } from './config/env.config';
+import { getLogger } from './config/logger.config';
+import { connect as connectDb } from './config/database.config';
+import { start as startHttpServer } from './config/httpServer.config';
 
-class App {
-  public express: express.Application;
+const logger = getLogger(__filename);
 
-  public constructor () {
-    this.database();
-    this.express = express();
+installSourceMapSupport();
+process.on('uncaughtException', err => {
+  logger.error(err);
+  process.exit(1);
+});
 
-    this.middlewares();
-    this.routes();
-  }
+process.on('exit', code => {
+  logger.log(code === 0 ? 'info' : 'error', `Exiting with code ${code}`);
+});
 
-  private middlewares (): void {
-    this.express.use(express.json());
-    this.express.use(cors());
-  }
+process.on('SIGINT', () => {
+  logger.info('Shutting down manually');
+});
 
-  private routes (): void {
-    this.express.use('/', routes);
-  }
-
-  private async database (): Promise<Connection> {
-    const connection = await createConnection();
-    return connection;
-  }
+async function start() {
+  logger.info(`Starting server - mode ${NODE_ENV}`);
+  logger.info(`Data directory: ${DATA_DIR}`);
+  await connectDb();
+  await startHttpServer();
 }
 
-export default new App().express;
+start()
+  .then(() => {
+    logger.info('Server ready');
+  })
+  .catch(err => {
+    logger.error(err);
+    process.exit(1);
+  });
